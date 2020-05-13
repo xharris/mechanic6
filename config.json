@@ -7,16 +7,20 @@
     "window_size": 3,
     "quick_access": [
         [
+            "button_list.lua=script+?",
+            "button_list.lua"
+        ],
+        [
+            "Add a script=new+?",
+            "Add a script"
+        ],
+        [
             "main.map=map+?",
             "main.map"
         ],
         [
             "pc_window.lua=script+?",
             "pc_window.lua"
-        ],
-        [
-            "Add a script=new+?",
-            "Add a script"
         ],
         [
             "Add a map=new+?",
@@ -30,10 +34,10 @@
             "9d729ac2": {
                 "name": "camera_spot",
                 "char": "<",
-                "color": "#800000",
+                "color": "#c0c0c0",
                 "size": [
-                    16,
-                    16
+                    320,
+                    320
                 ],
                 "uuid": "9d729ac2",
                 "size_changed": true
@@ -48,10 +52,22 @@
                 ],
                 "uuid": "8978f172",
                 "size_changed": true
+            },
+            "43c17803": {
+                "name": "walk_path",
+                "char": "5",
+                "color": "#ffff00",
+                "size": [
+                    16,
+                    16
+                ],
+                "uuid": "43c17803",
+                "size_changed": true
             }
         },
         "object_order": [
             "9d729ac2",
+            "43c17803",
             "8978f172"
         ]
     },
