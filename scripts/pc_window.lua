@@ -7,7 +7,7 @@ WindowManager = {
 	update = function(self, dt)
 		local titlebar_focus, bg_focus
 		
-		for _, win in ipairs(window_list) do
+		for i, win in ipairs(window_list) do
 			-- check window drag events
 			if Input.pressed('mouse') then
 				-- grabbing titlebar
@@ -17,7 +17,7 @@ WindowManager = {
 				-- touching anywhere in window
 				if mouse_x > win.x and mouse_x < win.x + win.width and mouse_y > win.y and mouse_y < win.y + win.height + TITLEBAR_HEIGHT then
 					-- put this window on top of others
-					if bg_focus == nil or titlebar_focus ~= bg_focus then
+					if bg_focus == nil or bg_focus.z ~= 1 then
 						bg_focus = win
 					end
 				end
@@ -38,7 +38,7 @@ WindowManager = {
 			titlebar_focus.z = 1
 			Game.sortDrawables()
 			
-		elseif bg_focus then
+		elseif bg_focus and bg_focus.z ~= 1 then
 			-- put this window on top of others
 			for _, window in ipairs(window_list) do 
 				window.z = 0
