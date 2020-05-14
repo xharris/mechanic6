@@ -1,13 +1,13 @@
 TITLEBAR_HEIGHT = 16
 BORDER_COLOR = Draw.hexToRgb("#6a717b")
 
-local window_list = {}
+local window_list = Array()
 
 WindowManager = {
-	update = function(self, dt)
+	update = function(dt)
 		local titlebar_focus, bg_focus
 		
-		for i, win in ipairs(window_list) do
+		window_list:forEach(function(win, i)
 			-- check window drag events
 			if Input.pressed('mouse') then
 				-- grabbing titlebar
@@ -17,7 +17,7 @@ WindowManager = {
 				-- touching anywhere in window
 				if mouse_x > win.x and mouse_x < win.x + win.width and mouse_y > win.y and mouse_y < win.y + win.height + TITLEBAR_HEIGHT then
 					-- put this window on top of others
-					if bg_focus == nil or bg_focus.z ~= 1 then
+					if bg_focus == nil or not bg_focus.is_top then
 						bg_focus = win
 					end
 				end
@@ -25,26 +25,32 @@ WindowManager = {
 			if Input.released('mouse') then 
 				win.dragging = false
 			end
-		end
+		end)
 		
 		if titlebar_focus and titlebar_focus == bg_focus then 
 			-- grabbing titlebar
 			titlebar_focus.dragging = { x = mouse_x-titlebar_focus.x, y = mouse_y-titlebar_focus.y }
-			
 			-- put this window on top of others
-			for _, window in ipairs(window_list) do 
-				window.z = 0
-			end
-			titlebar_focus.z = 1
-			Game.sortDrawables()
+			WindowManager.focus(titlebar_focus)
 			
-		elseif bg_focus and bg_focus.z ~= 1 then
+		elseif bg_focus then
 			-- put this window on top of others
-			for _, window in ipairs(window_list) do 
-				window.z = 0
-			end
-			bg_focus.z = 1
+			WindowManager.focus(bg_focus)
+				
+		end
+	end,
+	focus = function(window)
+		if not window.is_top then
+			window_list:filter(function(win)
+				return win ~= window
+			end)
+			window_list:push(window)
+			window_list:forEach(function(win, i)
+				win.z = i
+				win.is_top = false
+			end)
 			Game.sortDrawables()
+			window.is_top = true
 		end
 	end
 }
@@ -57,7 +63,8 @@ PCWindow = Entity("PCWindow",{
 		self.canvas = Canvas{auto_draw=false}
 		self.dragging = false
 		
-		table.insert(window_list, self)
+		window_list:push(self)
+		WindowManager.focus(self)
 	end,
 	update = function(self, dt)
 		-- dragging window
@@ -111,7 +118,7 @@ PCWindow = Entity("PCWindow",{
 		Draw.rect("line",0,0,self.width,self.height+TITLEBAR_HEIGHT,2)
 		
 		-- title bar
-		if self.z == 1 then
+		if self.is_top then
 			Draw.color("blue")
 		else 
 			Draw.color("gray")

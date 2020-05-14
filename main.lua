@@ -2,6 +2,7 @@ local os_margin = 5
 local family = table.random{"johnson","smith","harris"}
 
 Game{
+	plugins = { "xhh-array" },
 	background_color="gray",
 	load = function()		
 		
