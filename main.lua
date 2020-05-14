@@ -7,7 +7,6 @@ Game{
 	effect = { 'curvature', 'scanlines' },
 	background_color="gray",
 	load = function()	
-		
 		Game.effect:set("curvature", "inputSize", {Game.width, Game.height})
 		Game.effect:set("curvature", "textureSize", {Game.width, Game.height})
 		Game.effect:set("curvature", "distortion", 0.05)
@@ -19,7 +18,7 @@ Game{
 		},{ no_repeat={'mouse'} })
 		
 		-- os background
-		local bg = Image{file="windows_background_knockoff.jpg", draw=true}
+		local bg = Image{file="windows_background_knockoff.png", draw=true}
 		bg.z = -100
 			
 		-- house map
