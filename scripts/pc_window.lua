@@ -3,6 +3,7 @@ BORDER_COLOR = Draw.hexToRgb("#6a717b")
 
 local window_list = Array()
 
+
 WindowManager = {
 	update = function(dt)
 		local titlebar_focus, bg_focus
@@ -62,9 +63,14 @@ PCWindow = Entity("PCWindow",{
 		self.cam = Camera(self.cam_id, { auto_use=false, width=self.width, height=self.height })
 		self.canvas = Canvas{auto_draw=false}
 		self.dragging = false
+		self.eff_static = Effect("tv_static")
 		
 		window_list:push(self)
 		WindowManager.focus(self)
+	end,
+	add = function(self, obj)
+		obj:remDrawable()
+		obj.window = self
 	end,
 	update = function(self, dt)
 		-- dragging window
@@ -82,24 +88,34 @@ PCWindow = Entity("PCWindow",{
 		if self.update_fn then 
 			self:update_fn(dt)
 		end
+		
+		-- window offset for child objects
+		self.offx = self.x
+		self.offy = self.y + TITLEBAR_HEIGHT
 	end,
 	draw = function(self)
 		Draw.crop(self.x,self.y,self.width,self.height + TITLEBAR_HEIGHT)
 		
 		self.canvas:drawTo(function()	
 			Camera.attach(self.cam_id)
-			
+			Draw.clear()
 			-- window background
+			--if not self.use_cam then Draw.reset() end
 			Draw{
+				{'push'},
 				{'reset'},
 				{'color', self.background_color},
-				{'rect','fill',0,0,self.width,self.height+TITLEBAR_HEIGHT}
+				{'rect','fill',0,0,Game.width,Game.height},
+				{'color'},
+				{'pop'}
 			}
 			-- draw contents
 			if self.draw_fn then
 				Draw.push()		  
-				Draw.reset() -- draw at global positions
-				self:draw_fn(self.x, self.y + TITLEBAR_HEIGHT)
+				if not self.use_cam then Draw.reset() end -- draw at global positions
+				--self.eff_static:draw(function()
+					self:draw_fn(self.x, self.y + TITLEBAR_HEIGHT)
+				--end)
 				Draw.pop()
 			end
 				 
