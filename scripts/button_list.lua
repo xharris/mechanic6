@@ -8,6 +8,15 @@ ButtonList = Entity("ButtonList",{
 	on = function(self, fn)
 		Signal.on(tostring(self), fn)
 	end,
+	addItems = function(self, list, key)
+		for _, item in ipairs(list) do 
+			if key then 
+				table.insert(self.items, item[key])
+			else 
+				table.insert(self.items, item)
+			end
+		end
+	end,
 	update = function(self, dt)
 		self.scroll_max = Math.max(0, ((#self.items) * Draw.textHeight()) - self.height)
 		

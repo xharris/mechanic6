@@ -7,20 +7,24 @@
     "window_size": 3,
     "quick_access": [
         [
-            "main.lua=script+?",
-            "main.lua"
+            "main.map=map+?",
+            "main.map"
+        ],
+        [
+            "person.lua=script+?",
+            "person.lua"
         ],
         [
             "Add a script=new+?",
             "Add a script"
         ],
         [
-            "button_list.lua=script+?",
-            "button_list.lua"
+            "View assets=?",
+            "View assets"
         ],
         [
-            "main.map=map+?",
-            "main.map"
+            "pc_window.lua=script+?",
+            "pc_window.lua"
         ]
     ],
     "autoplay_preview": true,
@@ -38,17 +42,6 @@
                 "uuid": "9d729ac2",
                 "size_changed": true
             },
-            "8978f172": {
-                "name": "temp_room",
-                "char": "@",
-                "color": "#000000",
-                "size": [
-                    320,
-                    320
-                ],
-                "uuid": "8978f172",
-                "size_changed": true
-            },
             "43c17803": {
                 "name": "walk_path",
                 "char": "5",
@@ -59,18 +52,29 @@
                 ],
                 "uuid": "43c17803",
                 "size_changed": true
+            },
+            "3c310179": {
+                "name": "appliance",
+                "char": "&",
+                "color": "#00ff00",
+                "size": [
+                    16,
+                    16
+                ],
+                "uuid": "3c310179",
+                "size_changed": true
             }
         },
         "object_order": [
             "9d729ac2",
             "43c17803",
-            "8978f172"
+            "3c310179"
         ]
     },
     "export": {
         "name": "mechanic6",
         "filter": "linear",
-        "round_pixels": false,
+        "round_pixels": true,
         "vsync": "on"
     },
     "enabled_plugins": {

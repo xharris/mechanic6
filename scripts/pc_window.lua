@@ -3,7 +3,6 @@ BORDER_COLOR = Draw.hexToRgb("#6a717b")
 
 local window_list = Array()
 
-
 WindowManager = {
 	update = function(dt)
 		local titlebar_focus, bg_focus
@@ -63,7 +62,6 @@ PCWindow = Entity("PCWindow",{
 		self.cam = Camera(self.cam_id, { auto_use=false, width=self.width, height=self.height })
 		self.canvas = Canvas{auto_draw=false}
 		self.dragging = false
-		self.eff_static = Effect("tv_static")
 		
 		window_list:push(self)
 		WindowManager.focus(self)
@@ -113,9 +111,7 @@ PCWindow = Entity("PCWindow",{
 			if self.draw_fn then
 				Draw.push()		  
 				if not self.use_cam then Draw.reset() end -- draw at global positions
-				--self.eff_static:draw(function()
-					self:draw_fn(self.x, self.y + TITLEBAR_HEIGHT)
-				--end)
+				self:draw_fn(self.x, self.y + TITLEBAR_HEIGHT)
 				Draw.pop()
 			end
 				 
