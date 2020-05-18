@@ -5,8 +5,10 @@ ButtonList = Entity("ButtonList",{
 	scroll_y = 0,
 	scroll_max = 0,
 	items={},
-	on = function(self, fn)
-		Signal.on(tostring(self), fn)
+	entered={}, -- keep track of which item mouse is hovering over
+	disabled={},
+	add = function(self, item)
+		table.insert(self.items, item)
 	end,
 	addItems = function(self, list, key)
 		for _, item in ipairs(list) do 
@@ -20,39 +22,51 @@ ButtonList = Entity("ButtonList",{
 	update = function(self, dt)
 		self.scroll_max = Math.max(0, ((#self.items) * Draw.textHeight()) - self.height)
 		
-		if not self.window or self.window.is_top then
-			local offx, offy = 0, 0
-			if self.window then 
-				offx, offy = self.window.offx, self.window.offy
-			end
-			local mx, my = mouse_x - offx, mouse_y - offy
+		local offx, offy, mouse_in_window = 0, 0, true
 			
-			-- clicking an item in list
-			if Input.pressed('mouse') then
-				local x, y, w, h
-				
-				for i, item in ipairs(self.items) do
-					x, y = margin, -self.scroll_y + margin + ((i - 1) * Draw.textHeight())
-					w, h = self.width - (margin * 2) - SCROLL_WIDTH, Draw.textHeight()
-					
-					if mx > x and mx < x + w and my > y and my < y + h then 
-						Signal.emit(tostring(self), item)
-					end
+		if self.window then 
+			offx, offy = self.window.offx, self.window.offy
+		end
+		
+		local mx, my = mouse_x - offx, mouse_y - offy
+		local x, y, w, h
+		
+		x = margin
+		y = -self.scroll_y + margin
+
+		for i, item in ipairs(self.items) do
+			w, h = self.width - (margin * 2) - SCROLL_WIDTH, Draw.textHeight()
+
+			if not self.disabled[item] and (not self.window or self.window.hovering) and mx > x and mx < x + w and my > y and my < y + h then 
+				-- mouse entered
+				if not self.entered[item] then 
+					self.entered[item] = true
+					self:emit("enter", item)
 				end
-			end
-			
-			-- controlling the scrollbar with mouse
-			if Input.pressed('mouse_rpt') then
-				if mx > self.width - (SCROLL_WIDTH + margin) then
-					self.scroll_y = Math.prel(0, self.height, my) * self.scroll_max
+
+				-- clicking an item in list
+				if Input.pressed('mouse') then
+					self:emit("click", item)
 				end
+			elseif self.entered[item] then
+				self.entered[item] = false
+				self:emit("leave", item)
 			end
 			
-			-- controlling the scrollbar with wheel
-			local wheel = Input('wheel')
-			if wheel and wheel.y ~= 0 then 
-				self.scroll_y = self.scroll_y - 100 * wheel.y * dt
+			y = y + Draw.textHeight(item)
+		end
+			
+		-- controlling the scrollbar with mouse
+		if Input.pressed('mouse_rpt') then
+			if mx > self.width - (SCROLL_WIDTH + margin) then
+				self.scroll_y = Math.prel(0, self.height, my) * self.scroll_max
 			end
+		end
+
+		-- controlling the scrollbar with wheel
+		local wheel = Input('wheel')
+		if wheel and wheel.y ~= 0 then 
+			self.scroll_y = self.scroll_y - 100 * wheel.y * dt
 		end
 		
 		self.scroll_y = Math.clamp(self.scroll_y, 0, self.scroll_max)
@@ -70,16 +84,16 @@ ButtonList = Entity("ButtonList",{
 		local mx, my = mouse_x - offx, mouse_y - offy
 			
 		-- draw items
+		x, y = margin, - self.scroll_y + margin
 		for i, item in ipairs(self.items) do
-			x, y = margin, - self.scroll_y + margin + ((i - 1) * Draw.textHeight())
-			w, h = self.width - (margin * 2) - SCROLL_WIDTH, Draw.textHeight()
+			w, h = self.width - (margin * 2) - SCROLL_WIDTH, Draw.textHeight(item)
 
-			if (mx > x and mx < x + w and my > y and my < y + h) and (not self.window or self.window.is_top) then 
+			if not self.disabled[item] and (not self.window or self.window.hovering) and (mx > x and mx < x + w and my > y and my < y + h) or self.selected == item then 
 				colors = {'blue','white'}
 			else
 				colors = {'white','black'}
 			end
-
+			
 			Draw{
 				{'color',colors[1]},
 				{'rect',"fill",x,y,w,h},
@@ -87,6 +101,8 @@ ButtonList = Entity("ButtonList",{
 				{'print',item,x+2,y+1},
 				{'color'}
 			}
+			
+			y = y + Draw.textHeight(item)
 		end
 		
 		-- draw scrollbar

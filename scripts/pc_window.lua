@@ -6,7 +6,7 @@ local window_list = Array()
 WindowManager = {
 	update = function(dt)
 		local titlebar_focus, bg_focus
-		
+		local check_hover
 		window_list:forEach(function(win, i)
 			-- check window drag events
 			if Input.pressed('mouse') then
@@ -24,6 +24,20 @@ WindowManager = {
 			end
 			if Input.released('mouse') then 
 				win.dragging = false
+			end
+			-- hovering in general
+			if not check_hover or win.z > check_hover.z then
+				if mouse_x > win.x and mouse_x < win.x+win.width and mouse_y > win.y and mouse_y < win.y + win.height + TITLEBAR_HEIGHT then
+					check_hover = win	
+				end
+			end
+		end)
+		
+		window_list:forEach(function(win, i)
+			if win == check_hover then 
+				win.hovering = true
+			else
+				win.hovering = false
 			end
 		end)
 		
@@ -62,6 +76,8 @@ PCWindow = Entity("PCWindow",{
 		self.cam = Camera(self.cam_id, { auto_use=false, width=self.width, height=self.height })
 		self.canvas = Canvas{auto_draw=false}
 		self.dragging = false
+			
+		self.elements = Array()
 		
 		window_list:push(self)
 		WindowManager.focus(self)
@@ -69,6 +85,7 @@ PCWindow = Entity("PCWindow",{
 	add = function(self, obj)
 		obj:remDrawable()
 		obj.window = self
+		self.elements:shift(obj)
 	end,
 	update = function(self, dt)
 		-- dragging window
@@ -82,11 +99,11 @@ PCWindow = Entity("PCWindow",{
 		if self.x + self.width > Game.width then self.x = Game.width - self.width end
 		if self.y < 0 then self.y = 0 end 
 		if self.y + self.height + TITLEBAR_HEIGHT > Game.height then self.y = Game.height - self.height - TITLEBAR_HEIGHT end
-				
-		if self.update_fn then 
+		
+		if self.update_fn then 	
 			self:update_fn(dt)
 		end
-		
+			
 		-- window offset for child objects
 		self.offx = self.x
 		self.offy = self.y + TITLEBAR_HEIGHT

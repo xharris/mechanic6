@@ -4,27 +4,27 @@
     "ico": "src\\logo.ico",
     "icns": "src\\logo.icns",
     "game_size": 4,
-    "window_size": 3,
+    "window_size": 4,
     "quick_access": [
-        [
-            "main.map=map+?",
-            "main.map"
-        ],
-        [
-            "person.lua=script+?",
-            "person.lua"
-        ],
-        [
-            "Add a script=new+?",
-            "Add a script"
-        ],
-        [
-            "View assets=?",
-            "View assets"
-        ],
         [
             "pc_window.lua=script+?",
             "pc_window.lua"
+        ],
+        [
+            "Find in files=?",
+            "Find in files"
+        ],
+        [
+            "appliance.lua=script+?",
+            "appliance.lua"
+        ],
+        [
+            "button_list.lua=script+?",
+            "button_list.lua"
+        ],
+        [
+            "email.lua=script+?",
+            "email.lua"
         ]
     ],
     "autoplay_preview": true,
@@ -54,7 +54,7 @@
                 "size_changed": true
             },
             "3c310179": {
-                "name": "appliance",
+                "name": "Appliance",
                 "char": "&",
                 "color": "#00ff00",
                 "size": [
@@ -75,13 +75,15 @@
         "name": "mechanic6",
         "filter": "linear",
         "round_pixels": true,
-        "vsync": "on"
+        "vsync": "on",
+        "scale": true,
+        "resizable": true
     },
     "enabled_plugins": {
         "xhh-array": true,
         "xhh-badword": false,
         "xhh-effect": true,
-        "xhh-tween": false,
+        "xhh-tween": true,
         "xhh-vector": false,
         "cmpl": false,
         "yonaba-delaunay": false
