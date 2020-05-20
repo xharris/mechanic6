@@ -1,0 +1,9 @@
+Appliances needed (with active version):
+- television
+- window
+- microwave
+
+Tiles needed:
+- plates
+- couch
+- garbage can

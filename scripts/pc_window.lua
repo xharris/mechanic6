@@ -109,10 +109,10 @@ PCWindow = Entity("PCWindow",{
 		self.offy = self.y + TITLEBAR_HEIGHT
 	end,
 	draw = function(self)
-		Draw.crop(self.x,self.y,self.width,self.height + TITLEBAR_HEIGHT)
 		
-		self.canvas:drawTo(function()	
-			Camera.attach(self.cam_id)
+		self.canvas:drawTo(function()
+		Camera.attach(self.cam_id)
+		Draw.crop(0,0,self.width,self.height)
 			Draw.clear()
 			-- window background
 			--if not self.use_cam then Draw.reset() end
@@ -123,18 +123,21 @@ PCWindow = Entity("PCWindow",{
 				{'rect','fill',0,0,Game.width,Game.height},
 				{'color'},
 				{'pop'}
-			}
+			} 			
 			-- draw contents
-			if self.draw_fn then
-				Draw.push()		  
-				if not self.use_cam then Draw.reset() end -- draw at global positions
-				self:draw_fn(self.x, self.y + TITLEBAR_HEIGHT)
-				Draw.pop()
+			Draw.push()		  
+			if not self.use_cam then Draw.reset() end -- draw at global positions
+			self.elements:forEach(function(e)
+				e:draw()
+			end)	
+			if self.draw_fn then 
+				self:draw_fn(self.x, self.y + TITLEBAR_HEIGHT) 
 			end
+			Draw.pop()
 				 
-			Camera.detach() 
+		Camera.detach()
 		end)
-		
+			
 		self.canvas.x = self.x
 		self.canvas.y = self.y + TITLEBAR_HEIGHT
 		self.canvas:draw()

@@ -7,6 +7,7 @@ ButtonList = Entity("ButtonList",{
 	items={},
 	entered={}, -- keep track of which item mouse is hovering over
 	disabled={},
+	color={}, -- { item = color }
 	add = function(self, item)
 		table.insert(self.items, item)
 	end,
@@ -92,6 +93,9 @@ ButtonList = Entity("ButtonList",{
 				colors = {'blue','white'}
 			else
 				colors = {'white','black'}
+				if self.color[item] then 
+					colors = self.color[item]
+				end	
 			end
 			
 			Draw{

@@ -10,11 +10,16 @@ end
 
 local full_name = {
 	son = { "Bobby", "Jimmy", "Timmy" },
+	daughter = { "Jessica", "Caitlyn", "Lisa" },
+	mother = { "Sandra" },
+	father = { "John" }
 }
 
 local activity_list = {
-	son = { "clock1", "lamp", "sink" },
-	daughter = { "clock2", "lamp", "sink" }
+	son = { "clock1", "lamp", "sink", "window" },
+	daughter = { "clock2", "lamp", "sink" },
+	mother = { "sink", "television", "microwave", "window" },
+	father = { "sink", "television", "microwave" }
 }
 
 local walk_speed_mult = {
@@ -59,11 +64,11 @@ Person = Entity("Person",{
 		local spot
 		Timer.every(0.25, function()
 			spot = table.random(activity_list[self.name])
-			if not dest_taken[spot] then 
-				if self.last_dest then 
-					-- mark the current activity as unused to allow other family members to use it
-					dest_taken[self.last_dest] = false				
-				end
+			if self.last_dest then 
+				-- mark the current activity as unused to allow other family members to use it
+				dest_taken[self.last_dest] = false				
+			end
+			if spot == "window" or not dest_taken[spot] and spot ~= self.last_dest then 
 				print(self.name,"going to",spot)
 				self:moveTo(spot)
 				return true
@@ -75,6 +80,7 @@ Person = Entity("Person",{
 	moveTo = function(self, name)
 		if Game.main_map then 
 			local app = Appliance.request(name)
+			
 			local path = Game.main_map:getPaths("walk_path", "entities")[1]
 			dest_taken[name] = true
 			path:go(self, { 
@@ -82,27 +88,27 @@ Person = Entity("Person",{
 				target = { tag=app.path }, 
 				onFinish = function()
 					
-				-- request appliance activation
-				local alerts = {}
-				local m = 20
-				
-				-- show an alert above the person
-				local main_alert = Alert{
-					x = self.x, 
-					y = self.y - self.height,
-					z = self.z - 1,
-					fading = false
-				}		
-				app.needs_activation = true
-								
-				local tmr_lose = Timer.after(wait_timer, function()
-					-- their patience ran out (game over)
-					Game.gameOver(string.expand([[
-It seems we have received a complaint from the ${family:capitalize()} family. Their
-$1, $2, could not activate their $3 after $4 seconds of trying.
-]], self.name, self.full_name, app.formal_name, wait_timer))
-				end)
-				local tmr_alert = Timer.every(1, function(timer)
+					-- request appliance activation
+					local alerts = {}
+					local m = 20
+
+					-- show an alert above the person
+					local main_alert = Alert{
+						x = self.x, 
+						y = self.y - self.height,
+						z = self.z - 1,
+						fading = false
+					}		
+					app.needs_activation = true
+
+					local tmr_lose = Timer.after(wait_timer, function()
+						-- their patience ran out (game over)
+						Game.gameOver(string.expand([[
+	It seems we have received a complaint from the ${family:capitalize()} family. Their
+	$1, $2, could not activate their $3 after $4 seconds of trying.
+	]], self.name, self.full_name, app.formal_name, wait_timer))
+					end)
+					local tmr_alert = Timer.every(1, function(timer)
 					-- spawn a bunch of alerts based on how long person has waited
 					Alert{
 						x = self.x, 

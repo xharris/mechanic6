@@ -7,24 +7,24 @@
     "window_size": 4,
     "quick_access": [
         [
-            "pc_window.lua=script+?",
-            "pc_window.lua"
+            "floor_map.map=map+?",
+            "floor_map.map"
         ],
         [
-            "Find in files=?",
-            "Find in files"
+            "Add a map=new+?",
+            "Add a map"
         ],
         [
-            "appliance.lua=script+?",
-            "appliance.lua"
+            "main.map=map+?",
+            "main.map"
         ],
         [
-            "button_list.lua=script+?",
-            "button_list.lua"
+            "person.lua=?",
+            "person.lua"
         ],
         [
-            "email.lua=script+?",
-            "email.lua"
+            "notes.txt=?",
+            "notes.txt"
         ]
     ],
     "autoplay_preview": true,
@@ -63,12 +63,23 @@
                 ],
                 "uuid": "3c310179",
                 "size_changed": true
+            },
+            "6aa9e673": {
+                "name": "map_spot",
+                "char": "=",
+                "color": "#ff8080",
+                "size": [
+                    32,
+                    32
+                ],
+                "uuid": "6aa9e673"
             }
         },
         "object_order": [
             "9d729ac2",
             "43c17803",
-            "3c310179"
+            "3c310179",
+            "6aa9e673"
         ]
     },
     "export": {
@@ -107,6 +118,19 @@
             "frame_size": [
                 32,
                 32
+            ],
+            "frames": 1,
+            "position": [
+                0,
+                0
+            ],
+            "spacing": 0,
+            "onion_alpha": 0.3
+        },
+        "image/alert.png": {
+            "frame_size": [
+                8,
+                21
             ],
             "frames": 1,
             "position": [

@@ -1,10 +1,11 @@
-wait_timer = 8
-walk_speed = 20
+wait_timer = 8 -- how long a person will wait for an appliance
+walk_speed = 20 -- generally how fast every walks
+appliance_timer_mult = 1.2 -- # times how long appliances stay active
 
 family = table.random{"johnson","smith","harris"}
 	
 -- setup family members
-local members = { "son", "daughter" }
+local members = { "son" } --, "daughter", "father", "mother" }
 local os_margin = 5
 	
 Input.set({
@@ -17,66 +18,95 @@ local win_house, win_cameras, win_appliance
 local list_camera, list_appliance
 
 local setupGame = function()
+	Audio.hearing(100)
+	
 	-- os background
 	local bg = Image{file="windows_background_knockoff.png", draw=true}
 	bg.z = -100
 	
 	-- house map
 	Game.main_map = Map.load('main.map')
-	Game.main_map:remDrawable()		
-
+	
+	-- change camera
+	local camera_spots = Game.main_map:getEntityInfo("camera_spot")
+		
 	-- window: house monitor
 	win_house = PCWindow{
 		x = Game.width - 320 - os_margin, y = os_margin,
 		width = 320, height = 320,
 		title = (family.."_cam.exe"),
 		use_cam = true, 
-		eff_static = Effect("tv static"),
-		draw_fn = function(self)
-			self.eff_static:draw(function()
-				Game.main_map:draw()
-			end)	
-		end,
 		switch_cam = function(self, name)
-			-- select in list
-			list_camera.selected = name
 			-- show static
-			self.eff_static:enable("tv static")
-			-- change camera
-			local camera_spots = Game.main_map:getEntityInfo("camera_spot")
+			Game.main_map.effect:enable("tv static")
 			for _, spot in ipairs(camera_spots) do
 				if spot.map_tag == name then
+					print('use',name)
 					self.cam.follow = spot
+					Audio.position{ x = spot.x, z = spot.y}
 				end
 			end
 			-- hide static
 			Timer.after(table.random{0.2,0.3,1}, function()
-				self.eff_static:disable("tv static")
+				Game.main_map.effect:disable("tv static")
 			end)
 		end
 	}		
-	win_house.eff_static:disable("tv static")
-
+	Game.main_map:setEffect("tv static")
+	Game.main_map.effect:disable("tv static")
+	win_house:add(Game.main_map)
+	
+	-- house map
+	local floor_map = Map.load('floor_map.map')
+	local minimap_spots = floor_map:getEntityInfo("map_spot")
+	local img_map_info = Image.info("floor_map.png")
+		
 	-- window: camera list
-	list_camera = ButtonList{
-		width = 320, height = 160 - TITLEBAR_HEIGHT
-	}
 	win_cameras = PCWindow{
 		x = os_margin, y = Game.height - 160 - os_margin - TITLEBAR_HEIGHT,
 		width = 320, height = 160,
 		title = "Cam Manager 0.3",
 		background_color = "white",
-		draw_fn = function()
-			list_camera:draw()
+		use_cam = true, 
+		hovering_label = '',
+		update_fn = function(self, dt)
+		end,
+		draw_fn = function(self)
+			local hover_info
+			
+			local mx, my = Camera.coords(self.cam.name, mouse_x - self.offx, mouse_y - self.offy)
+		
+			for _, info in ipairs(minimap_spots) do 
+				local x = info.x - (info.width / 2)
+				local y = info.y - (info.height / 2)
+				if 	mx > x and mx < x + info.width and 
+					my > y and my < y + info.height then
+					
+					hover_info = info
+					
+					if Input.pressed('mouse') then
+						win_house:switch_cam(info.map_tag)
+					end
+				end
+			end
+			
+			if hover_info then
+				Draw{
+					{'color','black'},
+					{'print',
+						("ROOM ID: $1\nX=$2 Y=$3"):expand(hover_info.map_tag, hover_info.x, hover_info.y),
+						self.cam.offset_x + 3,
+						self.cam.offset_y + 3
+					},
+					{'color','red',0.5},
+					{'rect','fill',hover_info.x - (hover_info.width/2),hover_info.y - (hover_info.height/2),hover_info.width,hover_info.height},
+					{'color'}
+				}
+			end
 		end
 	}
-	win_cameras:add(list_camera)
-	-- setup camera list
-	list_camera:on("click", function(item)
-		win_house:switch_cam(item)
-	end)
-	camera_spots = Game.main_map:getEntityInfo("camera_spot")
-	list_camera:addItems(camera_spots, 'map_tag')
+	win_cameras:add(floor_map)
+	win_cameras.cam.follow = { x = img_map_info.width/2, y = img_map_info.height/2 }
 
 	-- window: appliance list
 	list_appliance = ButtonList{
@@ -87,9 +117,6 @@ local setupGame = function()
 		width = 320, height = 240,
 		title = "congo_appliance_rootkit.exe",
 		background_color = "white",
-		draw_fn = function()
-			list_appliance:draw()
-		end
 	}
 	win_appliance:add(list_appliance)
 
@@ -113,6 +140,13 @@ local setupGame = function()
 		local ent = Appliance.get(item)
 		if ent then
 			ent:activate()
+			list_appliance.color[item] = {"green", "white"}
+			-- give the list item a different color
+			-- while the appliance is active
+			ent:on("finish", function()
+				list_appliance.color[item] = nil
+				return true
+			end)
 		end
 	end)
 end
@@ -163,7 +197,7 @@ Game{
 
 Game.isOver = false
 Game.gameOver = function(body)
-	if Game.isOver then return end
+	if true or Game.isOver then return end
 	Game.isOver = true 
 	
 	local email_ends = {
