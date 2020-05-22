@@ -5,5 +5,25 @@ Appliances needed (with active version):
 
 Tiles needed:
 - plates
-- couch
 - garbage can
+
+Audio needed (active/finish):
+- lamp (scribbling/switch off)
+- sink (washing/faucet off)
+- television (tv sounds/tv switch off)
+- window (nature/wind sounds/window shut)
+- microwave (obvious)
+
+- Credits
+
+* audio *
+
+Lamp turn off - http://soundbible.com/893-Button-Click.html
+Television audio 
+- https://www.youtube.com/watch?v=7jxPjVzmq5k
+- https://www.youtube.com/watch?v=OVlA9UOlSlM
+
+* image *
+
+Windows Background Knockoff - https://www.deviantart.com/cao/art/Windows-Background-Knockoff-181791671
+House Insides tileset - https://opengameart.org/content/lpc-house-insides

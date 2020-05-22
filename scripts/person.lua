@@ -11,8 +11,8 @@ end
 local full_name = {
 	son = { "Bobby", "Jimmy", "Timmy" },
 	daughter = { "Jessica", "Caitlyn", "Lisa" },
-	mother = { "Sandra" },
-	father = { "John" }
+	mother = { "Sandra", "Louise" },
+	father = { "John", "Hank", "Peter" }
 }
 
 local activity_list = {
@@ -64,77 +64,84 @@ Person = Entity("Person",{
 		local spot
 		Timer.every(0.25, function()
 			spot = table.random(activity_list[self.name])
-			if self.last_dest then 
-				-- mark the current activity as unused to allow other family members to use it
-				dest_taken[self.last_dest] = false				
-			end
-			if spot == "window" or not dest_taken[spot] and spot ~= self.last_dest then 
-				print(self.name,"going to",spot)
-				self:moveTo(spot)
-				return true
-			else 
-				print(self.name,"thinking about",spot)
+			if not self:moveTo(spot) then 
+				-- appliance is being used
+				if cheat then print(self.name,"thinking about",spot) end
+			else
+				-- end the search
+				return true 
 			end
 		end)
 	end,
 	moveTo = function(self, name)
-		if Game.main_map then 
-			local app = Appliance.request(name)
-			
-			local path = Game.main_map:getPaths("walk_path", "entities")[1]
-			dest_taken[name] = true
-			path:go(self, { 
-				speed = walk_speed * walk_speed_mult[self.name], 
-				target = { tag=app.path }, 
-				onFinish = function()
-					
-					-- request appliance activation
-					local alerts = {}
-					local m = 20
+		if not Game.main_map or dest_taken[name] then return end
+		
+		if cheat then print(self.name,"going to",spot) end
+		
+		local app = Appliance.get(name)
+		local path = Game.main_map:getPaths("walk_path", "entities")[1]
 
-					-- show an alert above the person
-					local main_alert = Alert{
-						x = self.x, 
-						y = self.y - self.height,
-						z = self.z - 1,
-						fading = false
-					}		
-					app.needs_activation = true
+		-- free up the last appliance for other family members
+		dest_taken[name] = true
+		if self.last_dest then
+			dest_taken[self.last_dest] = false
+		end
+		self.last_dest = name
 
-					local tmr_lose = Timer.after(wait_timer, function()
-						-- their patience ran out (game over)
-						Game.gameOver(string.expand([[
+		path:go(self, { 
+			speed = walk_speed * walk_speed_mult[self.name], 
+			target = { tag=app.path }, 
+			onFinish = function()
+
+				-- request appliance activation
+				local alerts = {}
+				local m = 20
+
+				-- show an alert above the person
+				local main_alert = Alert{
+					x = self.x, 
+					y = self.y - self.height,
+					z = self.z - 1,
+					fading = false
+				}		
+				app.needs_activation = true
+				if cheat then print(self.full_name,'needs',app.formal_name) end
+
+				local tmr_lose = Timer.after(wait_timer, function()
+					-- their patience ran out (game over)
+					Game.gameOver(string.expand([[
 	It seems we have received a complaint from the ${family:capitalize()} family. Their
 	$1, $2, could not activate their $3 after $4 seconds of trying.
 	]], self.name, self.full_name, app.formal_name, wait_timer))
-					end)
-					local tmr_alert = Timer.every(1, function(timer)
-					-- spawn a bunch of alerts based on how long person has waited
-					Alert{
-						x = self.x, 
-						y = self.y - self.height,
-						z = self.z - 2
-					}
-					
-					timer.duration = Math.lerp(1, 0.1, tmr_lose.p)
 				end)
-				
-				-- wait for activation
-				app:on("activate", function()
-					tmr_lose:destroy()
-					tmr_alert:destroy()
-					main_alert:destroy()
-					
-					app:on("finish", function()
-						self.last_dest = name
-						self:findNewActivity()
-						return true
-					end)
-					
-					return true 
+
+				local tmr_alert = Timer.every(1, function(timer)
+				-- spawn a bunch of alerts based on how long person has waited
+				Alert{
+					x = self.x, 
+					y = self.y - self.height,
+					z = self.z - 2
+				}
+
+				timer.duration = Math.lerp(1, 0.1, tmr_lose.p)
+			end)
+
+			-- wait for activation
+			app:on("activate", function()
+				tmr_lose:destroy()
+				tmr_alert:destroy()
+				main_alert:destroy()
+
+				app:on("finish", function()
+					self:findNewActivity()
+					return true
 				end)
-			end})
-		end
+
+				return true 
+			end)
+		end})
+		
+		return true -- success
 	end,
 	update = function(self, dt)
 		if self.is_pathing then 

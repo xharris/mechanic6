@@ -1,17 +1,26 @@
 wait_timer = 8 -- how long a person will wait for an appliance
 walk_speed = 20 -- generally how fast every walks
 appliance_timer_mult = 1.2 -- # times how long appliances stay active
+cheat = false
 
 family = table.random{"johnson","smith","harris"}
 	
 -- setup family members
-local members = { "son" } --, "daughter", "father", "mother" }
-local os_margin = 5
+local members = { "son", "daughter", "father", "mother" }
+local os_margin = 50
 	
 Input.set({
 	mouse = {'mouse1'},
-	mouse_rpt = {'mouse1'}
+	mouse_rpt = {'mouse1'},
+	leave = { 'escape' },
+	continue = { 'enter', 'kpenter' }
 },{ no_repeat={'mouse'} })
+
+Audio("camera_switch.mp3",{
+	name = "cam_switch",
+	type = 'static',
+	relative = true,
+})
 
 local camera_spots, appliances
 local win_house, win_cameras, win_appliance
@@ -22,7 +31,7 @@ local setupGame = function()
 	
 	-- os background
 	local bg = Image{file="windows_background_knockoff.png", draw=true}
-	bg.z = -100
+	-- bg.z = 0
 	
 	-- house map
 	Game.main_map = Map.load('main.map')
@@ -41,19 +50,26 @@ local setupGame = function()
 			Game.main_map.effect:enable("tv static")
 			for _, spot in ipairs(camera_spots) do
 				if spot.map_tag == name then
-					print('use',name)
 					self.cam.follow = spot
 					Audio.position{ x = spot.x, z = spot.y}
 				end
 			end
 			-- hide static
-			Timer.after(table.random{0.2,0.3,1}, function()
-				Game.main_map.effect:disable("tv static")
-			end)
+			local d = table.random{0.2,0.3,1}
+			if self.tmr_switch then 
+				self.tmr_switch.duration = self.tmr_switch.duration + d
+			else
+				Audio.volume(0.25)
+				self.tmr_switch = Timer.after(d, function()
+					Audio.volume(1)
+					Audio.play("cam_switch")
+					Game.main_map.effect:disable("tv static")
+					self.tmr_switch = nil
+				end)
+			end
 		end
 	}		
 	Game.main_map:setEffect("tv static")
-	Game.main_map.effect:disable("tv static")
 	win_house:add(Game.main_map)
 	
 	-- house map
@@ -84,7 +100,7 @@ local setupGame = function()
 					
 					hover_info = info
 					
-					if Input.pressed('mouse') then
+					if Input.pressed('mouse_rpt') then
 						win_house:switch_cam(info.map_tag)
 					end
 				end
@@ -149,59 +165,150 @@ local setupGame = function()
 			end)
 		end
 	end)
+	
+	
+	Game.sortDrawables()
 end
 
+game_time = 0
 local startGame = function()
 	for _, name in ipairs(members) do
 		local new_person = Person{name = name}
 		Game.main_map:add(new_person)
 	end	
 	win_house:switch_cam("bedroom")
+	
+	Game.isOver = false
+	game_time = 0
+	Timer.every(1, function()
+		game_time = game_time + 1000
+		return Game.isOver
+	end)
+end
+	
+local bios_msg = table.random{
+	{"Preparing system","Fastening seatbelts","Launching demo"},
+	{"Loading system","Turning tables","Tables turned"},
+	{"Starting demo","","Demo started"}
+}
+
+
+local intro_ctrls = "Press ALT+ENTER to toggle fullscreen, ESC to leave the game"
+local intro_instr= "Welcome to CongoOS!\n\n"..
+	"Use the camera manager to monitor the family of FOUR and activate their household appliances.\n"..
+	"Only activate an appliance when they want to use it. No sooner! But don't wait either or\n"..
+	"they will get impatient and file a complaint. You only have one chance, so don't mess up!\n\n"..
+	"Good luck\n\n"..
+	"Press ENTER to boot normally"
+local img_congo = Image{auto_draw = false, file = "congo.png" }
+local draw_bios = function(str, a)
+	Draw{
+		{'color','black', a or 1},
+		{'rect','fill',0,0,Game.width,Game.height},
+		{'color','white', a or 1},
+		{'print',str,5,5},
+		{'print',intro_ctrls,5,Game.height - Draw.textHeight(intro_ctrls) - 5}
+	}
+	img_congo.x = Game.width - img_congo.width - 5
+	img_congo.y = 5
+	img_congo:draw()
 end
 
+local tline_intro
 Game{
 	plugins = { "xhh-array", "xhh-effect", "xhh-tween" },
 	effect = { 'curvature', 'scanlines', 'static' },
 	background_color="gray",
 	load = function()	
-		Feature.disable("effect")
+		--Feature.disable("effect")
 		
 		Game.effect:set("curvature", "distortion", 0.05)
 		Game.effect:set("scanlines", "edge", { 0.9, 0.95 })
 		
-		setupGame()
-		if Game.restarting then 
-			-- show rewind (static) effect for a second
-			Game.effect:set("static", "strength", { 5, 0 })
-			Timer.after(1, 
-				function()
-					-- then, start the game
-					Game.effect:set("static", "strength", { 0, 0 })
-					startGame()
+		tline_intro = Timeline({
+			{ 
+				1500, 
+				fn = function()
+					-- show static effect for a second
+					Game.effect:set("static", "strength", { 1, 0 })
+				end,
+				draw = function() 
+					draw_bios(bios_msg[1])
+				end 
+			},
+			{
+				1000,
+				draw = function()
+					draw_bios(bios_msg[1].."\n"..bios_msg[2])
 				end
-			)
+			},
+			{
+				500,
+				draw = function()
+					draw_bios(bios_msg[1].."\n"..bios_msg[2].."\n"..bios_msg[3])
+				end
+			},
+			{
+				'wait',
+				draw = function(tline)
+					draw_bios(bios_msg[1].."\n"..bios_msg[2].."\n"..bios_msg[3].."\n\n"..intro_instr)
+					
+					if Input.pressed("continue") then
+						setupGame()
+						tline:step()
+					end
+				end
+			},
+			{
+				'wait',
+				name = 'static',
+				fn = function(tline)
+					-- show static effect for a second
+					Game.effect:set("static", "strength", { 5, 0 })
+
+					-- then, start the game
+					if tline.restarting then 
+						setupGame()
+					end
+
+					tline.v = { a = 1, static = 5 }
+					Tween(1, tline.v, { a=0, static=0 }, nil, function()
+						startGame()	
+						tline:step()
+					end)
+				end,
+				update = function(tline)
+					Game.effect:set("static", "strength", { tline.v.static, 0 })
+				end,
+				draw = function(tline)
+					if not tline.restarting then 
+						draw_bios(bios_msg[1].."\n"..bios_msg[2].."\n"..bios_msg[3], tline.v.a)
+					end
+				end
+			}
+		}, { z = 1000 })
+		
+		if Game.restarting then 
+			tline_intro.restarting = true
+			tline_intro:play('static') -- go to last step
 		else 
-			Game.effect:set("static", "strength", { 0, 0 })
-			-- show splash screen then fade into game
-			startGame()
-		end
+			tline_intro:play( ) -- 'static'  )
+		end	
 	end,
 	update = function(dt)
 		WindowManager.update(dt)
-	end,
-	draw = function(d)
-		d()
-		
+		if Input.pressed("leave") then 
+			Game.quit()
+		end	
 	end
 }
 
-Game.isOver = false
 Game.gameOver = function(body)
-	if true or Game.isOver then return end
+	if Game.isOver then return end
 	Game.isOver = true 
-	
+		
 	local email_ends = {
-		["Perhaps you should take some time off?"] = {"No thanks, I'm fine", "Thanks, I could use a vacation"},
+		["Perhaps you should take some time off?"] = {"No thanks, I'm fine. Put me back in boss!", "Thanks, I could use a vacation"},
 		["Did you have trouble reading the manual for this task?"] = {"I did and I'd like to try again", "What manual?"}
 	}
 	
@@ -212,7 +319,7 @@ Game.gameOver = function(body)
 		from = "boss@congo.com",
 		subject = "Complaint from customer",
 		actions = choices.table,
-		body = "Hello,\n" .. (body or "?") .. "\n" .. email_end_key .. "\n"
+		body = "Hello,\n\n" .. (body or "?") .. "\n\tYou were working for " .. Time.format("%hhr %mmin %ssec. ", game_time) .. email_end_key .. "\n"
 	}
 	end_email:on("click", function(item)
 		if item == choices[1] then

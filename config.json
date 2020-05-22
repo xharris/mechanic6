@@ -7,20 +7,20 @@
     "window_size": 4,
     "quick_access": [
         [
-            "floor_map.map=map+?",
-            "floor_map.map"
+            "Find in files=?",
+            "Find in files"
         ],
         [
-            "Add a map=new+?",
-            "Add a map"
+            "main.lua=script+?",
+            "main.lua"
+        ],
+        [
+            "View project in explorer=?",
+            "View project in explorer"
         ],
         [
             "main.map=map+?",
             "main.map"
-        ],
-        [
-            "person.lua=?",
-            "person.lua"
         ],
         [
             "notes.txt=?",
@@ -88,7 +88,8 @@
         "round_pixels": true,
         "vsync": "on",
         "scale": true,
-        "resizable": true
+        "resizable": true,
+        "fullscreen": true
     },
     "enabled_plugins": {
         "xhh-array": true,

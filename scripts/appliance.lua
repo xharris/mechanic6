@@ -9,63 +9,95 @@ local config_app = Config{
 	clock1 = {
 		path = 'bed1',
 		formal = 'clock',
+		haywire_desc = 'sets its alarm too early',
 		time = 12,
 		active_sound = "clock_tick.mp3",
 		finish_sound = "alarm_clock_ring.mp3",
+		looping = true,
 		room = "bedroom"
 	},
 	clock2 = {
 		path = 'bed2',
 		formal = 'clock',
+		haywire_desc = 'sets its alarm too early',
 		time = 8,
 		active_sound = "clock_tick.mp3",
 		finish_sound = "alarm_clock_ring.mp3",
+		looping = true,
 		room = "bedroom"
 	},
 	lamp = {
 		path = 'bd_desk',
 		active_anim = true,
+		haywire_desc = 'turns on by itself',
 		time = 5,
-		room = "bedroom"
+		room = "bedroom",
+		active_sound = "clickon.mp3",
+		finish_sound = "clickoff.mp3"
 	},
 	sink = {
 		active_anim = true,
 		time = 6,
-		room = "bathroom"
+		room = "bathroom",
+		haywire_desc = 'is leaking too much water',
+		active_sound = "bathroom_faucet.mp3",
+		finish_sound = "faucet_off.mp3",
+		volume = 0.2
 	},
 	television = {
 		active_anim = true,
 		time = 20,
-		room = "living_room"
+		room = "living_room",
+		haywire_desc = 'turns on when no one is watching it',
+		active_sound = "fakenewsreport.mp3",
+		finish_sound = "tv_switch_off.mp3",
+		volume = 0.2
 	},
 	window = {
 		active_anim = true,
 		time = 10,
-		room = "bedroom"
+		room = "bedroom",
+		haywire_desc = 'opens randomly',
+		active_sound = "nature.mp3",
+		finish_sound = "window_close.mp3"	
 	},
 	microwave = {
 		active_anim = true,
 		time = 30,
-		room = "living_room"
+		room = "living_room",
+		haywire_desc = 'is running without food in it',
+		active_sound = "microwave_start_n_run.mp3",
+		finish_sound = "microwave_beep.mp3",
+		volume = 0.2	
 	}
 }
 
-config_app:iterateKeys(function(key, info)
-	info.formal = info.formal or key
-	
-	if info.active_sound then
-		Audio(info.active_sound, {
-			name = info.formal,
-			looping = true,
-			type = 'static'
-		})
-	end
-	if info.finish_sound then
-		Audio(info.finish_sound, {
-			name = info.formal.."_finish",
-			type = 'static'
-		})
-	end
+Audio.effect("InHouse",{
+	type = 'reverb',
+})
+
+Signal.on("Game.load",function()
+	config_app:iterateKeys(function(key, info)
+		info.formal = info.formal or key
+
+		if info.active_sound then
+			Audio(info.active_sound, {
+				name = info.formal,
+				looping = info.looping,
+				type = 'static',
+				volume = info.volume,
+				effect = "InHouse"
+			})
+		end
+		if info.finish_sound then
+			Audio(info.finish_sound, {
+				name = info.formal.."_finish",
+				type = 'static',
+				volume = info.volume,
+				effect = "InHouse"
+			})
+		end
+	end)
 end)
 
 local app_list = {}
@@ -151,6 +183,17 @@ Appliance = Entity("Appliance",{
 	activate = function(self)
 		local config = config_app:get(self.map_tag)
 
+		-- was a person actually asking for activation?
+		if not self.needs_activation then 
+			Timer.after(0.5, function()
+				Game.gameOver(string.expand([[
+	It seems we have received a complaint from the ${family:capitalize()} family.
+	Their $1 $2. 
+	They believe it is broken and will be returning their Congo products for a refund.
+	]], self.formal_name, config.haywire_desc))
+			end)
+		end
+
 		if not self.activated then 
 			if config.active_anim then
 				-- change to active animation
@@ -166,16 +209,7 @@ Appliance = Entity("Appliance",{
 			
 			self.activated = true
 			
-			-- was a user asking for activation?
-			if not self.needs_activation then 
-				Timer.after(0.5, function()
-					Game.gameOver(string.expand([[
-It seems we have received a complaint from the ${family:capitalize()} family. Their 
-$1 turns on by itself. They believe it is broken and will be returning their Congo 
-products.
-]], self.formal_name))
-				end)
-			else 
+			if self.needs_activation then 
 				self.needs_activation = false
 				self:emit("activate")
 			end
@@ -207,13 +241,5 @@ products.
 })
 
 Appliance.get = function(path_name)
-	return app_list[path_name] or {}
-end
-
-Appliance.request = function(name)
-	local ent = Appliance.get(name)
-	if ent then 
-		ent.needs_activation = true
-		return ent
-	end
+	return assert(app_list[path_name], "No appliance found: "..path_name)
 end
