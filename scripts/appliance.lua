@@ -72,9 +72,11 @@ local config_app = Config{
 	}
 }
 
-Audio.effect("InHouse",{
-	type = 'reverb',
-})
+local aud_filter = {
+	type = "lowpass",
+	volume = 1.25,
+	highgain = .1,
+}
 
 Signal.on("Game.load",function()
 	config_app:iterateKeys(function(key, info)
@@ -86,7 +88,7 @@ Signal.on("Game.load",function()
 				looping = info.looping,
 				type = 'static',
 				volume = info.volume,
-				effect = "InHouse"
+				filter = aud_filter
 			})
 		end
 		if info.finish_sound then
@@ -94,7 +96,7 @@ Signal.on("Game.load",function()
 				name = info.formal.."_finish",
 				type = 'static',
 				volume = info.volume,
-				effect = "InHouse"
+				filter = aud_filter
 			})
 		end
 	end)

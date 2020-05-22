@@ -83,13 +83,13 @@
         ]
     },
     "export": {
-        "name": "mechanic6",
+        "name": "CongoOS",
         "filter": "linear",
         "round_pixels": true,
         "vsync": "on",
         "scale": true,
         "resizable": true,
-        "fullscreen": true
+        "fullscreen": false
     },
     "enabled_plugins": {
         "xhh-array": true,
