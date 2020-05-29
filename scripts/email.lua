@@ -3,9 +3,9 @@ Email = Entity("Email",{
 		local m = 30
 		
 		-- window
-		self.win = PCWindow{
+		self.win = UI.Window{
 			x = m, y = m,
-			width = Game.width - (m*2), height = Game.height - (m*2) - TITLEBAR_HEIGHT,
+			width = Game.width - (m*2), height = Game.height - (m*2) - UI.titlebar_height,
 			title = ("From: <$1>, Subject: <$2>"):expand(self.from, self.subject),
 			background_color = "white",
 			draw_fn = function()
@@ -14,8 +14,8 @@ Email = Entity("Email",{
 		}
 		
 		-- list
-		self.list = ButtonList{
-			width = Game.width - (m*2), height = Game.height - (m*2) - TITLEBAR_HEIGHT
+		self.list = UI.List{
+			width = Game.width - (m*2), height = Game.height - (m*2) - UI.titlebar_height
 		}
 		self.list.disabled = {
 			["Quick reply:"] = true,

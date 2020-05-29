@@ -16,10 +16,10 @@ local full_name = {
 }
 
 local activity_list = {
-	son = { "clock1", "lamp", "sink", "window" },
-	daughter = { "clock2", "lamp", "sink" },
+	son = { "clock1", "lamp", "sink", "television" },
+	daughter = { "clock2", "lamp", "sink", "television" },
 	mother = { "sink", "television", "microwave", "window" },
-	father = { "sink", "television", "microwave" }
+	father = { "sink", "television", "microwave", "lamp" }
 }
 
 local walk_speed_mult = {
@@ -64,7 +64,7 @@ Person = Entity("Person",{
 		local spot
 		Timer.every(0.25, function()
 			spot = table.random(activity_list[self.name])
-			if not self:moveTo(spot) then 
+			if not Game.isOver and not self:moveTo(spot) then 
 				-- appliance is being used
 				if cheat then print(self.name,"thinking about",spot) end
 			else
@@ -74,25 +74,25 @@ Person = Entity("Person",{
 		end)
 	end,
 	moveTo = function(self, name)
-		if not Game.main_map or dest_taken[name] then return end
+		if not Game.main_map or dest_taken[name] then return false end
 		
-		if cheat then print(self.name,"going to",spot) end
+		if cheat then print(self.name,"going to",name) end
 		
 		local app = Appliance.get(name)
 		local path = Game.main_map:getPaths("walk_path", "entities")[1]
 
 		-- free up the last appliance for other family members
-		dest_taken[name] = true
+		dest_taken[name] = self.name
 		if self.last_dest then
 			dest_taken[self.last_dest] = false
 		end
 		self.last_dest = name
-
+		
 		path:go(self, { 
+			force = true,
 			speed = walk_speed * walk_speed_mult[self.name], 
 			target = { tag=app.path }, 
 			onFinish = function()
-
 				-- request appliance activation
 				local alerts = {}
 				local m = 20
@@ -105,41 +105,46 @@ Person = Entity("Person",{
 					fading = false
 				}		
 				app.needs_activation = true
-				if cheat then print(self.full_name,'needs',app.formal_name) end
-
+				if cheat then print(self.name,'needs',app.formal_name) end
+				
 				local tmr_lose = Timer.after(wait_timer, function()
 					-- their patience ran out (game over)
+					
 					Game.gameOver(string.expand([[
 	It seems we have received a complaint from the ${family:capitalize()} family. Their
 	$1, $2, could not activate their $3 after $4 seconds of trying.
 	]], self.name, self.full_name, app.formal_name, wait_timer))
+
 				end)
 
 				local tmr_alert = Timer.every(1, function(timer)
-				-- spawn a bunch of alerts based on how long person has waited
-				Alert{
-					x = self.x, 
-					y = self.y - self.height,
-					z = self.z - 2
-				}
+					-- spawn a bunch of alerts based on how long person has waited
+					Alert{
+						x = self.x, 
+						y = self.y - self.height,
+						z = self.z - 2
+					}
 
-				timer.duration = Math.lerp(1, 0.1, tmr_lose.p)
-			end)
-
-			-- wait for activation
-			app:on("activate", function()
-				tmr_lose:destroy()
-				tmr_alert:destroy()
-				main_alert:destroy()
-
-				app:on("finish", function()
-					self:findNewActivity()
-					return true
+					timer.duration = Math.lerp(1, 0.1, tmr_lose.p)
 				end)
+				
+				-- wait for activation
+				app:on("activate", function()
+					tmr_lose:destroy()
+					tmr_alert:destroy()
+					main_alert:destroy()
 
-				return true 
-			end)
-		end})
+					app:on("finish", function()
+						if cheat then print(self.name,'finished',app.formal_name) end
+						
+						self:findNewActivity()
+						return true
+					end)
+
+					return true 
+				end)
+			end
+		})
 		
 		return true -- success
 	end,

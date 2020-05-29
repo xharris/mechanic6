@@ -188,11 +188,10 @@ Appliance = Entity("Appliance",{
 		-- was a person actually asking for activation?
 		if not self.needs_activation then 
 			Timer.after(0.5, function()
-				Game.gameOver(string.expand([[
-	It seems we have received a complaint from the ${family:capitalize()} family.
-	Their $1 $2. 
-	They believe it is broken and will be returning their Congo products for a refund.
-	]], self.formal_name, config.haywire_desc))
+				Game.gameOver(string.expand(
+					"It seems we have received a complaint from the ${family:capitalize()} family."..
+					"Their $1 $2. They believe it is broken and will be returning their Congo products "..
+					"for a refund.", self.formal_name, config.haywire_desc))
 			end)
 		end
 
@@ -209,12 +208,11 @@ Appliance = Entity("Appliance",{
 				})
 			end
 			
-			self.activated = true
 			
-			if self.needs_activation then 
-				self.needs_activation = false
-				self:emit("activate")
-			end
+			self:emit("activate")
+			
+			self.needs_activation = false
+			self.activated = true
 			
 			-- circle effect timer
 			Timer.after(1, function()

@@ -2,6 +2,7 @@ wait_timer = 8 -- how long a person will wait for an appliance
 walk_speed = 20 -- generally how fast every walks
 appliance_timer_mult = 1.2 -- # times how long appliances stay active
 cheat = false
+skip_intro = false
 
 family = table.random{"johnson","smith","harris"}
 	
@@ -23,15 +24,19 @@ Audio("camera_switch.mp3",{
 })
 
 local camera_spots, appliances
-local win_house, win_cameras, win_appliance
 local list_camera, list_appliance
 
+local windows = {}
+
 local setupGame = function()
+	windows = {}
 	Audio.hearing(100)
 	
 	-- os background
-	local bg = Image{file="windows_background_knockoff.png", draw=true}
-	-- bg.z = 0
+	Background{
+		file = "windows_background_knockoff.png",
+		size = "cover"
+	}
 	
 	-- house map
 	Game.main_map = Map.load('main.map')
@@ -40,7 +45,7 @@ local setupGame = function()
 	local camera_spots = Game.main_map:getEntityInfo("camera_spot")
 		
 	-- window: house monitor
-	win_house = PCWindow{
+	windows.house = UI.Window{
 		x = Game.width - 320 - os_margin, y = os_margin,
 		width = 320, height = 320,
 		title = (family.."_cam.exe"),
@@ -59,9 +64,9 @@ local setupGame = function()
 			if self.tmr_switch then 
 				self.tmr_switch.duration = self.tmr_switch.duration + d
 			else
-				Audio.volume(0.25)
+				if not driver_updating then Audio.volume(0.25) end
 				self.tmr_switch = Timer.after(d, function()
-					Audio.volume(1)
+					if not driver_updating then Audio.volume(1) end
 					Audio.play("cam_switch")
 					Game.main_map.effect:disable("tv static")
 					self.tmr_switch = nil
@@ -70,7 +75,7 @@ local setupGame = function()
 		end
 	}		
 	Game.main_map:setEffect("tv static")
-	win_house:add(Game.main_map)
+	windows.house:add(Game.main_map)
 	
 	-- house map
 	local floor_map = Map.load('floor_map.map')
@@ -78,15 +83,13 @@ local setupGame = function()
 	local img_map_info = Image.info("floor_map.png")
 		
 	-- window: camera list
-	win_cameras = PCWindow{
-		x = os_margin, y = Game.height - 160 - os_margin - TITLEBAR_HEIGHT,
+	windows.camera = UI.Window{
+		x = os_margin, y = Game.height - 160 - os_margin - UI.titlebar_height,
 		width = 320, height = 160,
 		title = "Cam Manager 0.3",
 		background_color = "white",
 		use_cam = true, 
 		hovering_label = '',
-		update_fn = function(self, dt)
-		end,
 		draw_fn = function(self)
 			local hover_info
 			
@@ -101,7 +104,7 @@ local setupGame = function()
 					hover_info = info
 					
 					if Input.pressed('mouse_rpt') then
-						win_house:switch_cam(info.map_tag)
+						windows.house:switch_cam(info.map_tag)
 					end
 				end
 			end
@@ -121,20 +124,20 @@ local setupGame = function()
 			end
 		end
 	}
-	win_cameras:add(floor_map)
-	win_cameras.cam.follow = { x = img_map_info.width/2, y = img_map_info.height/2 }
+	windows.camera:add(floor_map)
+	windows.camera.cam.follow = { x = img_map_info.width/2, y = img_map_info.height/2 }
 
 	-- window: appliance list
-	list_appliance = ButtonList{
-		width = 320, height = 240 - TITLEBAR_HEIGHT
+	list_appliance = UI.List{
+		width = 320, height = 240 - UI.titlebar_height
 	}
-	win_appliance = PCWindow{
+	windows.appliance = UI.Window{
 		x = os_margin, y = os_margin,
 		width = 320, height = 240,
 		title = "congo_appliance_rootkit.exe",
 		background_color = "white",
 	}
-	win_appliance:add(list_appliance)
+	windows.appliance:add(list_appliance)
 
 	appliances = Game.main_map:getEntityInfo("Appliance")
 	list_appliance:addItems(appliances, 'map_tag')
@@ -172,14 +175,16 @@ end
 
 game_time = 0
 local startGame = function()
+	-- add family members to the house
 	for _, name in ipairs(members) do
 		local new_person = Person{name = name}
 		Game.main_map:add(new_person)
 	end	
-	win_house:switch_cam("bedroom")
-	
+	windows.house:switch_cam("bedroom")
+		
 	Game.isOver = false
 	game_time = 0
+	-- start playtime timer
 	Timer.every(1, function()
 		game_time = game_time + 1000
 		return Game.isOver
@@ -216,7 +221,7 @@ end
 
 local tline_intro
 Game{
-	plugins = { "xhh-array", "xhh-effect", "xhh-tween" },
+	plugins = { "xhh-array", "xhh-effect", "xhh-tween" , "xhh-ui" },
 	effect = { 'curvature', 'scanlines', 'static' },
 	background_color="gray",
 	load = function()	
@@ -288,7 +293,7 @@ Game{
 			}
 		}, { z = 1000 })
 		
-		if Game.restarting then 
+		if Game.restarting or skip_intro then 
 			tline_intro.restarting = true
 			tline_intro:play('static') -- go to last step
 		else 
@@ -296,10 +301,24 @@ Game{
 		end	
 	end,
 	update = function(dt)
-		WindowManager.update(dt)
 		if Input.pressed("leave") then 
 			Game.quit()
 		end	
+
+		-- start chat messages
+		if not Game.chat_timer and game_time > Time.ms{min=2} then 
+			Game.chat_timer = Timer.after(Math.random(10,15), function()
+				if not Game.isOver then Chat() end
+				return Math.random(15,40)
+			end)
+		end
+		-- sound driver update 
+		if not Game.snd_driver_timer and game_time > Time.ms{min=4} then 
+			Game.snd_driver_timer = Timer.after(Math.random(10,15), function()
+				if not Game.isOver then updateDriver() end 
+				return Math.random(30,40)
+			end)
+		end 
 	end
 }
 
@@ -309,7 +328,7 @@ Game.gameOver = function(body)
 		
 	local email_ends = {
 		["Perhaps you should take some time off?"] = {"No thanks, I'm fine. Put me back in boss!", "Thanks, I could use a vacation"},
-		["Did you have trouble reading the manual for this task?"] = {"I did and I'd like to try again", "What manual?"}
+		["Did you have trouble reading the manual for this task?"] = {"Yes, but I would like to try again", "What manual?"}
 	}
 	
 	local email_end_key = table.random(table.keys(email_ends))
@@ -319,7 +338,7 @@ Game.gameOver = function(body)
 		from = "boss@congo.com",
 		subject = "Complaint from customer",
 		actions = choices.table,
-		body = "Hello,\n\n" .. (body or "?") .. "\n\tYou were working for " .. Time.format("%hhr %mmin %ssec. ", game_time) .. email_end_key .. "\n"
+		body = "Hello,\n\n" .. (body or "?") .. "\n\n\tYou were only working for " .. Time.format("%hhr %mmin %ssec. ", game_time) .. email_end_key .. "\n\n"
 	}
 	end_email:on("click", function(item)
 		if item == choices[1] then

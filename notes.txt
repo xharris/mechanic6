@@ -1,20 +1,24 @@
-Appliances needed (with active version):
-- television
-- window
-- microwave
+===== Game Description =====
 
-Tiles needed:
-- plates
-- garbage can
+Welcome to Congo Inc!
+For years we have been the #1 seller of automated household products. We're more than excited for you to join the team! 
+Thank you for accepting the position ENTRY-LEVEL APPLIANCE ACTIVATOR. As discussed in the post-NDA meeting, our products are actually manually activated by our employees by monitoring the customer through CCTV and determining if they are requesting that an appliance be activated.​
 
-Audio needed (active/finish):
-- lamp (scribbling/switch off)
-- sink (washing/faucet off)
-- television (tv sounds/tv switch off)
-- window (nature/wind sounds/window shut)
-- microwave (obvious)
+Your job is to use your Cam Manager 0.3 to monitor the family and their needs.  When a family member wants to use an appliance (  ), use the congo_appliance_rootkit.exe to activate the appliance.
 
-- Credits
+Recent observations to remember:
+
+activating a product too early will result in a complaint from the customer
+waiting too long to activated a product will result in a complaint from the customer
+Any complaints are taken seriously here at Congo Inc, so please be careful.
+
+
+
+Sincerely,
+
+Your boss
+
+===== Credits ======
 
 * audio *
 
@@ -27,3 +31,16 @@ Television audio
 
 Windows Background Knockoff - https://www.deviantart.com/cao/art/Windows-Background-Knockoff-181791671
 House Insides tileset - https://opengameart.org/content/lpc-house-insides
+
+
+
+Tiles needed:
+- plates
+- garbage can
+
+Audio needed (active/finish):
+- lamp (scribbling/switch off)
+- sink (washing/faucet off)
+- television (tv sounds/tv switch off)
+- window (nature/wind sounds/window shut)
+- microwave (obvious)

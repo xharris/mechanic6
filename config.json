@@ -1,5 +1,6 @@
 {
     "write_conf": true,
+    "profiling_level": 0,
     "engine_type": "oop",
     "ico": "src\\logo.ico",
     "icns": "src\\logo.icns",
@@ -11,20 +12,16 @@
             "Find in files"
         ],
         [
-            "main.lua=script+?",
-            "main.lua"
+            "Add a script=new+?",
+            "Add a script"
         ],
         [
-            "View project in explorer=?",
-            "View project in explorer"
+            "person.lua=script+entity+?",
+            "person.lua"
         ],
         [
-            "main.map=map+?",
-            "main.map"
-        ],
-        [
-            "notes.txt=?",
-            "notes.txt"
+            "chat.lua=script+?",
+            "chat.lua"
         ]
     ],
     "autoplay_preview": true,
@@ -85,11 +82,18 @@
     "export": {
         "name": "CongoOS",
         "filter": "linear",
-        "round_pixels": true,
-        "vsync": "on",
         "scale": true,
+        "vsync": "on",
+        "web_memory": 24,
+        "web_stack": 2,
+        "web_game_size": [
+            800,
+            600
+        ],
+        "round_pixels": true,
         "resizable": true,
-        "fullscreen": false
+        "fullscreen": false,
+        "company_name": "XHH"
     },
     "enabled_plugins": {
         "xhh-array": true,
@@ -98,7 +102,8 @@
         "xhh-tween": true,
         "xhh-vector": false,
         "cmpl": false,
-        "yonaba-delaunay": false
+        "yonaba-delaunay": false,
+        "xhh-ui": true
     },
     "imageeditor": {
         "image/house_inside.png": {
@@ -140,6 +145,11 @@
             ],
             "spacing": 0,
             "onion_alpha": 0.3
+        }
+    },
+    "code": {
+        "scripts/chat.lua": {
+            "lineWrapping": false
         }
     }
 }
