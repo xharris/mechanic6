@@ -338,9 +338,9 @@ Game.gameOver = function(body)
 		from = "boss@congo.com",
 		subject = "Complaint from customer",
 		actions = choices.table,
-		body = "Hello,\n\n" .. (body or "?") .. "\n\n\tYou were only working for " .. Time.format("%hhr %mmin %ssec. ", game_time) .. email_end_key .. "\n\n"
+		body = "Hello,\n\n" .. (body or "?") .. "\n\n\tYou were only working for " .. Time.format("%hhr %mmin %ssec. \n\n", game_time) .. email_end_key .. "\n\n"
 	}
-	end_email:on("click", function(item)
+	end_email:on("click", function(item, i)
 		if item == choices[1] then
 			Game.restart()
 		end

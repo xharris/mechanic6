@@ -8,16 +8,20 @@
     "window_size": 4,
     "quick_access": [
         [
+            "main.lua=script+?",
+            "main.lua"
+        ],
+        [
+            "person.lua=script+entity+?",
+            "person.lua"
+        ],
+        [
             "Find in files=?",
             "Find in files"
         ],
         [
             "Add a script=new+?",
             "Add a script"
-        ],
-        [
-            "person.lua=script+entity+?",
-            "person.lua"
         ],
         [
             "chat.lua=script+?",
@@ -84,7 +88,7 @@
         "filter": "linear",
         "scale": true,
         "vsync": "on",
-        "web_memory": 24,
+        "web_memory": 128,
         "web_stack": 2,
         "web_game_size": [
             800,
@@ -92,7 +96,7 @@
         ],
         "round_pixels": true,
         "resizable": true,
-        "fullscreen": false,
+        "fullscreen": true,
         "company_name": "XHH"
     },
     "enabled_plugins": {

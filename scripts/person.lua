@@ -110,10 +110,10 @@ Person = Entity("Person",{
 				local tmr_lose = Timer.after(wait_timer, function()
 					-- their patience ran out (game over)
 					
-					Game.gameOver(string.expand([[
-	It seems we have received a complaint from the ${family:capitalize()} family. Their
-	$1, $2, could not activate their $3 after $4 seconds of trying.
-	]], self.name, self.full_name, app.formal_name, wait_timer))
+					Game.gameOver(string.expand(
+						"It seems we have received a complaint from the ${family:capitalize()} family. Their "..
+						"$1, $2, could not activate their $3 after $4 seconds of trying."
+						, self.name, self.full_name, app.formal_name, wait_timer))
 
 				end)
 
