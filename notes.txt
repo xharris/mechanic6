@@ -18,7 +18,7 @@ Sincerely,
 
 Your boss
 
-===== Credits ======
+===== Credits =====
 
 * audio *
 
@@ -32,8 +32,6 @@ Television audio
 Windows Background Knockoff - https://www.deviantart.com/cao/art/Windows-Background-Knockoff-181791671
 House Insides tileset - https://opengameart.org/content/lpc-house-insides
 
-
-
 Tiles needed:
 - plates
 - garbage can
@@ -44,3 +42,14 @@ Audio needed (active/finish):
 - television (tv sounds/tv switch off)
 - window (nature/wind sounds/window shut)
 - microwave (obvious)
+
+===== Want =====
+
+- Game takes place during daytime
+- Ends at nighttime
+
+===== Story scenarios =====
+
+- Stalker:
+   - Coworker asks for too much information about family
+   - If you give too much information, they will show up after Day gameplay to 

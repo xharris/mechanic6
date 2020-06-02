@@ -8,6 +8,10 @@
     "window_size": 4,
     "quick_access": [
         [
+            "notes.txt=?",
+            "notes.txt"
+        ],
+        [
             "main.lua=script+?",
             "main.lua"
         ],
@@ -22,10 +26,6 @@
         [
             "Add a script=new+?",
             "Add a script"
-        ],
-        [
-            "chat.lua=script+?",
-            "chat.lua"
         ]
     ],
     "autoplay_preview": true,
@@ -73,7 +73,8 @@
                     32,
                     32
                 ],
-                "uuid": "6aa9e673"
+                "uuid": "6aa9e673",
+                "size_changed": true
             }
         },
         "object_order": [
@@ -96,7 +97,7 @@
         ],
         "round_pixels": true,
         "resizable": true,
-        "fullscreen": true,
+        "fullscreen": false,
         "company_name": "XHH"
     },
     "enabled_plugins": {
@@ -141,6 +142,19 @@
             "frame_size": [
                 8,
                 21
+            ],
+            "frames": 1,
+            "position": [
+                0,
+                0
+            ],
+            "spacing": 0,
+            "onion_alpha": 0.3
+        },
+        "image/floor_map.png": {
+            "frame_size": [
+                222,
+                87
             ],
             "frames": 1,
             "position": [

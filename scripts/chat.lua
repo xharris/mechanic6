@@ -29,7 +29,7 @@ local config_chat = Config{
 	prompts = {
 		["Can you send me the Cam Manager coordinates for the bedroom?"]={ "24,25", "45,64", "25,24", "52,42", "01,02" },
 		["How many cameras are there?"]={ "5", "6", "3", "4"},
-		["Which window am I supposed to open?"]={ "right", "left", "both" },
+		["Which bedroom window am I supposed to open?"]={ "right", "left", "both" },
 		["Who uses clock1?"]={ "Son", "Mother", "Daughter", "Father" }
 	}
 }

@@ -14,7 +14,7 @@ Input.set({
 	mouse = {'mouse1'},
 	mouse_rpt = {'mouse1'},
 	leave = { 'escape' },
-	continue = { 'enter', 'kpenter' }
+	continue = { 'space' }
 },{ no_repeat={'mouse'} })
 
 Audio("camera_switch.mp3",{
@@ -181,6 +181,16 @@ local startGame = function()
 		Game.main_map:add(new_person)
 	end	
 	windows.house:switch_cam("bedroom")
+	
+	if Game.chat_timer then 
+		Game.chat_timer:destroy()
+		Game.chat_timer = nil 
+	end
+	
+	if Game.snd_driver_timer then 
+		Game.snd_driver_timer:destroy()
+		Game.snd_driver_timer = nil 
+	end
 		
 	Game.isOver = false
 	game_time = 0
@@ -204,7 +214,7 @@ local intro_instr= "Welcome to CongoOS!\n\n"..
 	"Only activate an appliance when they want to use it. No sooner! But don't wait either or\n"..
 	"they will get impatient and file a complaint. You only have one chance, so don't mess up!\n\n"..
 	"Good luck\n\n"..
-	"Press ENTER to boot normally"
+	"Press SPACE to boot normally"
 local img_congo = Image{auto_draw = false, file = "congo.png" }
 local draw_bios = function(str, a)
 	Draw{
@@ -306,14 +316,14 @@ Game{
 		end	
 
 		-- start chat messages
-		if not Game.chat_timer and game_time > Time.ms{min=2} then 
+		if not Game.chat_timer and game_time > Time.ms{min=1} then 
 			Game.chat_timer = Timer.after(Math.random(10,15), function()
 				if not Game.isOver then Chat() end
 				return Math.random(15,40)
 			end)
 		end
 		-- sound driver update 
-		if not Game.snd_driver_timer and game_time > Time.ms{min=4} then 
+		if not Game.snd_driver_timer and game_time > Time.ms{min=2} then 
 			Game.snd_driver_timer = Timer.after(Math.random(10,15), function()
 				if not Game.isOver then updateDriver() end 
 				return Math.random(30,40)
