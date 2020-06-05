@@ -77,8 +77,6 @@ Person = Entity("Person",{
 	moveTo = function(self, name)
 		if dest_taken[name] then return false end
 		
-		print(self.name,self.x,self.y)
-		
 		if cheat then print(self.name,"going to",name) end
 		
 		local cfg_os = Config("os")
