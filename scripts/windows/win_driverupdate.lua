@@ -1,7 +1,10 @@
+local driver_updating = false
+local snd_driver_timer
+
 WinUpdate = Entity("WinUpdate",{
 	spawn = function(self)
 		
-		self.tmr_update = Timer.after(Math.random(30,20), function()
+		self.tmr_update = Timer.after(Math.random(2000,3000), function()
 			self:startUpdate()
 		end)
 		
@@ -65,28 +68,43 @@ WinUpdate = Entity("WinUpdate",{
 		self.updating = 0
 
 		local finished = false
-		local tmr_finish = Timer.after(Math.random(5,25), function()
+		local tmr_finish = Timer.after(Math.random(5000,2500), function()
 			Audio.volume(1)
 			finished = true
 			driver_updating = false
 			
 			self.update_msg = "Update complete!"
-			Timer.after(1, function()
+			Timer.after(1000, function()
 				self:destroy()
 			end)
 		end)
 
 		-- progress bar
-		Timer.every(1, function()
+		Timer.every(1000, function()
 			self.updating = (tmr_finish.duration - tmr_finish.t) / tmr_finish.duration
 			return finished
 		end) 
 	end
 })
 
-driver_updating = false
-updateDriver = function()
-	if not driver_updating then 
-		driver_updating = WinUpdate()
+Signal.on("game_start", function()
+	if snd_driver_timer then 
+		snd_driver_timer:destroy()
+		snd_driver_timer = nil 
 	end
-end
+end)
+
+Signal.on("update", function()
+	-- sound driver update 
+	if not snd_driver_timer and (Game.time * 1000) > Time.ms{min=2} then 
+		snd_driver_timer = Timer.after(Math.random(1000,1500), function()
+			if not Game.isOver then 
+				-- start the update
+				if not driver_updating then 
+					driver_updating = WinUpdate()
+				end
+			end 
+			return Math.random(30,40)
+		end)
+	end 
+end)

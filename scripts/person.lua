@@ -7,6 +7,7 @@ person_anim = function(name)
 	{ rows=1, cols=3, speed=10 }
 end
 
+local members = { "son", "daughter", "father", "mother" }
 
 local full_name = {
 	son = { "Bobby", "Jimmy", "Timmy" },
@@ -57,10 +58,12 @@ Person = Entity("Person",{
 		self.animation = self.name.."_"..name
 	end,
 	findNewActivity = function(self)
+		local cfg_os = Config("os")
+		
 		-- find the next appliance to use
 		-- one that is not already in use
 		local spot
-		Timer.every(0.25, function()
+		Timer.every(cfg_os:get("search_freq"), function()
 			spot = table.random(activity_list[self.name])
 			if not Game.isOver and not self:moveTo(spot) then 
 				-- appliance is being used
@@ -74,7 +77,13 @@ Person = Entity("Person",{
 	moveTo = function(self, name)
 		if dest_taken[name] then return false end
 		
+		print(self.name,self.x,self.y)
+		
 		if cheat then print(self.name,"going to",name) end
+		
+		local cfg_os = Config("os")
+		local wait_timer = cfg_os:get("wait_timer")
+		local walk_speed = cfg_os:get("walk_speed")
 		
 		local app = Appliance.get(name)
 		local path = HouseMonitor.getWalkPaths()
@@ -109,13 +118,13 @@ Person = Entity("Person",{
 					-- their patience ran out (game over)
 					
 					Game.gameOver(string.expand(
-						"It seems we have received a complaint from the ${family:capitalize()} family. Their "..
-						"$1, $2, could not activate their $3 after $4 seconds of trying."
-						, self.name, self.full_name, app.formal_name, wait_timer))
+						"It seems we have received a complaint from the ${Family.name:capitalize()} family. Their "..
+						"$1, $2, could not activate their $3 after $4 of trying."
+						, self.name, self.full_name, app.formal_name, Time.format("%s seconds", wait_timer)))
 
 				end)
 
-				local tmr_alert = Timer.every(1, function(timer)
+				local tmr_alert = Timer.every(1000, function(timer)
 					-- spawn a bunch of alerts based on how long person has waited
 					Alert{
 						x = self.x, 
@@ -156,6 +165,15 @@ Person = Entity("Person",{
 	end
 })
 
+Family = {}
+Family.addMembers = function()
+	-- add family members to the house
+	for _, name in ipairs(members) do
+		Person{name = name}
+	end	
+end
+Family.name = table.random{"johnson","smith","harris"}
+
 Alert = Entity("Alert",{
 	images = { "alert.png" },
 	align = "center",
@@ -163,7 +181,7 @@ Alert = Entity("Alert",{
 	fading = true,
 	spawn = function(self)
 		self.y = self.y - (self.height / 2)
-		HouseMonitor.addToMap(self)
+		HouseMonitor.addToMap(self, "entities")
 		if self.fading then
 			Tween(1, self, { scalex = 3, alpha = 0 }, 'quadOut', function()
 				self:destroy()

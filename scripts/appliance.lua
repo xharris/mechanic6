@@ -184,14 +184,16 @@ Appliance = Entity("Appliance",{
 	end,
 	activate = function(self)
 		local config = config_app:get(self.map_tag)
+		local cfg_os = Config("os")
+		local appliance_timer_mult = cfg_os:get("appliance_timer_mult")
 
 		-- was a person actually asking for activation?
 		if not self.needs_activation then 
-			Timer.after(0.5, function()
+			Timer.after(500, function()
 				Game.gameOver(string.expand(
-					"It seems we have received a complaint from the ${family:capitalize()} family."..
-					"Their $1 $2. They believe it is broken and will be returning their Congo products "..
-					"for a refund.", self.formal_name, config.haywire_desc))
+					"It seems we have received a complaint from the $1 family. "..
+					"Their $2 $3. They believe it is broken and will be returning their Congo products "..
+					"for a refund.", Family.name:capitalize(), self.formal_name, config.haywire_desc))
 			end)
 		end
 
@@ -215,7 +217,7 @@ Appliance = Entity("Appliance",{
 			self.activated = true
 			
 			-- circle effect timer
-			Timer.after(1, function()
+			Timer.after(1000, function()
 				if self.activated then 
 					ActiveCircle{x = self.x, y = self.y, z = self.z - 1}
 					return true
@@ -223,7 +225,7 @@ Appliance = Entity("Appliance",{
 			end)
 
 			-- timer: appliance turns off
-			Timer.after(config.time * appliance_timer_mult, function()
+			Timer.after(config.time * 1000 * appliance_timer_mult, function()
 				self.activated = false 
 				self.animation = self.formal_name
 				-- play finish sound

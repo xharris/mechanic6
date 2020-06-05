@@ -171,3 +171,15 @@ Chat = Entity("Chat",{
 		self.win:destroy()
 	end
 })
+
+local chat_timer
+
+Signal.on("game_start", function()
+	Timer.after(Time.ms{min=1},function()
+		-- start chat messages
+		Timer.every(Math.random(1000,1500), function()
+			if not Game.isOver then Chat() end
+			return Math.random(15,40)
+		end)
+	end)
+end)

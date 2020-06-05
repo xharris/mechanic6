@@ -11,7 +11,7 @@ HouseMonitor = callable{
 		window = UI.Window{
 			x = Game.width - 320 - os_margin, y = os_margin,
 			width = 320, height = 320,
-			title = (family.."_cam.exe"),
+			title = (Family.name.."_cam.exe"),
 			use_cam = true
 		}
 
@@ -41,7 +41,7 @@ HouseMonitor = callable{
 			end
 		end
 		-- hide static
-		local d = table.random{0.2,0.3,1}
+		local d = table.random{200,300,1000}
 		if tmr_switch then 
 			tmr_switch.duration = tmr_switch.duration + d
 		else

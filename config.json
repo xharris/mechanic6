@@ -8,24 +8,20 @@
     "window_size": 4,
     "quick_access": [
         [
-            "person.lua=script+entity+?",
-            "person.lua"
-        ],
-        [
-            "house_monitor.lua=script+?",
-            "house_monitor.lua"
+            "Find in files=?",
+            "Find in files"
         ],
         [
             "main.lua=script+?",
             "main.lua"
         ],
         [
-            "Find in files=?",
-            "Find in files"
+            "person.lua=script+entity+?",
+            "person.lua"
         ],
         [
-            "Add a script=new+?",
-            "Add a script"
+            "appliance.lua=script+entity+?",
+            "appliance.lua"
         ]
     ],
     "autoplay_preview": true,
