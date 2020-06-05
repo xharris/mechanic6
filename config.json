@@ -8,16 +8,16 @@
     "window_size": 4,
     "quick_access": [
         [
-            "notes.txt=?",
-            "notes.txt"
+            "person.lua=script+entity+?",
+            "person.lua"
+        ],
+        [
+            "house_monitor.lua=script+?",
+            "house_monitor.lua"
         ],
         [
             "main.lua=script+?",
             "main.lua"
-        ],
-        [
-            "person.lua=script+entity+?",
-            "person.lua"
         ],
         [
             "Find in files=?",

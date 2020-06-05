@@ -5,7 +5,7 @@ app_anim = function(name)
 	{ rows=1, cols=2, speed=0 }
 end
 
-local config_app = Config{
+local config_app = Config('appliance',{
 	clock1 = {
 		path = 'bed1',
 		formal = 'clock',
@@ -70,7 +70,7 @@ local config_app = Config{
 		finish_sound = "microwave_beep.mp3",
 		volume = 0.2	
 	}
-}
+})
 
 local aud_filter = {
 	type = "lowpass",
@@ -107,7 +107,7 @@ local app_list = {}
 ActiveCircle = Entity("ActiveCircle",{
 	r = 0,
 	spawn = function(self)
-		Game.main_map:add(self, "entities")
+		HouseMonitor.addToMap(self)
 	end,
 	update = function(self, dt)
 		self.r = self.r + 10 * dt
@@ -161,7 +161,7 @@ Appliance = Entity("Appliance",{
 	end,
 	getRoom = function(self)
 		-- get info about which room this is in
-		local cam_spots = Game.main_map:getEntityInfo("camera_spot")
+		local cam_spots = HouseMonitor.getCameraSpots()
 		local config = config_app:get(self.map_tag)
 		for _, info in ipairs(cam_spots) do 
 			if info.map_tag == config.room then 

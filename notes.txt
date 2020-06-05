@@ -52,4 +52,5 @@ Audio needed (active/finish):
 
 - Stalker:
    - Coworker asks for too much information about family
-   - If you give too much information, they will show up after Day gameplay to 
+   - If you give too much information, they will show up after Day gameplay to do stuff[?] and you need
+   		to stop them

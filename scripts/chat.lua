@@ -1,4 +1,4 @@
-local config_chat = Config{
+local config_chat = Config("chat",{
 	from = {
 		"Dylan", "Samantha", "Justin", "Derek", "Jess", "Riddick", "Jotaro", "Jolyne", "Jason", "May"
 	},
@@ -32,7 +32,7 @@ local config_chat = Config{
 		["Which bedroom window am I supposed to open?"]={ "right", "left", "both" },
 		["Who uses clock1?"]={ "Son", "Mother", "Daughter", "Father" }
 	}
-}
+})
 
 Audio('notification.mp3',{
 	name = 'notification',

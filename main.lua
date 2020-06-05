@@ -2,13 +2,17 @@ wait_timer = 8 -- how long a person will wait for an appliance
 walk_speed = 20 -- generally how fast every walks
 appliance_timer_mult = 1.2 -- # times how long appliances stay active
 cheat = false
-skip_intro = false
+skip_intro = true -- false
 
 family = table.random{"johnson","smith","harris"}
 	
 -- setup family members
 local members = { "son", "daughter", "father", "mother" }
 local os_margin = 50
+
+Config("os",{
+	margin = 50
+})
 	
 Input.set({
 	mouse = {'mouse1'},
@@ -23,7 +27,7 @@ Audio("camera_switch.mp3",{
 	relative = true,
 })
 
-local camera_spots, appliances
+local appliances
 local list_camera, list_appliance
 
 local windows = {}
@@ -37,45 +41,9 @@ local setupGame = function()
 		file = "windows_background_knockoff.png",
 		size = "cover"
 	}
-	
-	-- house map
-	Game.main_map = Map.load('main.map')
-	
-	-- change camera
-	local camera_spots = Game.main_map:getEntityInfo("camera_spot")
 		
-	-- window: house monitor
-	windows.house = UI.Window{
-		x = Game.width - 320 - os_margin, y = os_margin,
-		width = 320, height = 320,
-		title = (family.."_cam.exe"),
-		use_cam = true, 
-		switch_cam = function(self, name)
-			-- show static
-			Game.main_map.effect:enable("tv static")
-			for _, spot in ipairs(camera_spots) do
-				if spot.map_tag == name then
-					self.cam.follow = spot
-					Audio.position{ x = spot.x, z = spot.y}
-				end
-			end
-			-- hide static
-			local d = table.random{0.2,0.3,1}
-			if self.tmr_switch then 
-				self.tmr_switch.duration = self.tmr_switch.duration + d
-			else
-				if not driver_updating then Audio.volume(0.25) end
-				self.tmr_switch = Timer.after(d, function()
-					if not driver_updating then Audio.volume(1) end
-					Audio.play("cam_switch")
-					Game.main_map.effect:disable("tv static")
-					self.tmr_switch = nil
-				end)
-			end
-		end
-	}		
-	Game.main_map:setEffect("tv static")
-	windows.house:add(Game.main_map)
+	-- house monitor/map
+	HouseMonitor()
 	
 	-- house map
 	local floor_map = Map.load('floor_map.map')
@@ -104,7 +72,7 @@ local setupGame = function()
 					hover_info = info
 					
 					if Input.pressed('mouse_rpt') then
-						windows.house:switch_cam(info.map_tag)
+						HouseMonitor.switchCam(info.map_tag)
 					end
 				end
 			end
@@ -139,7 +107,7 @@ local setupGame = function()
 	}
 	windows.appliance:add(list_appliance)
 
-	appliances = Game.main_map:getEntityInfo("Appliance")
+	appliances = HouseMonitor.getEntityInfo("Appliance")
 	list_appliance:addItems(appliances, 'map_tag')
 	list_appliance:on("enter", function(item)
 		-- highlight all the appliances that match item name
@@ -177,10 +145,9 @@ game_time = 0
 local startGame = function()
 	-- add family members to the house
 	for _, name in ipairs(members) do
-		local new_person = Person{name = name}
-		Game.main_map:add(new_person)
+		Person{name = name}
 	end	
-	windows.house:switch_cam("bedroom")
+	HouseMonitor.switchCam("bedroom")
 	
 	if Game.chat_timer then 
 		Game.chat_timer:destroy()

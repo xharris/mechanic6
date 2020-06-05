@@ -41,14 +41,12 @@ Person = Entity("Person",{
 		end
 	end,
 	spawn = function(self)
-		if Game.main_map then
-			Game.main_map:addEntity(self, "entities")
-		end
+		HouseMonitor.addToMap(self, "entities")
 		if full_name[self.name] then 
 			self.full_name = table.random(full_name[self.name])
 		end
 		
-		local camera_spots = Game.main_map:getEntityInfo("camera_spot")
+		local camera_spots = HouseMonitor.getEntityInfo("camera_spot")
 		
 		local spawn_spot = table.random(camera_spots)
 		self:use(spawn_spot, {'x', 'y'})
@@ -74,12 +72,12 @@ Person = Entity("Person",{
 		end)
 	end,
 	moveTo = function(self, name)
-		if not Game.main_map or dest_taken[name] then return false end
+		if dest_taken[name] then return false end
 		
 		if cheat then print(self.name,"going to",name) end
 		
 		local app = Appliance.get(name)
-		local path = Game.main_map:getPaths("walk_path", "entities")[1]
+		local path = HouseMonitor.getWalkPaths()
 
 		-- free up the last appliance for other family members
 		dest_taken[name] = self.name
@@ -165,7 +163,7 @@ Alert = Entity("Alert",{
 	fading = true,
 	spawn = function(self)
 		self.y = self.y - (self.height / 2)
-		Game.main_map:add(self, "entities")
+		HouseMonitor.addToMap(self)
 		if self.fading then
 			Tween(1, self, { scalex = 3, alpha = 0 }, 'quadOut', function()
 				self:destroy()
