@@ -1,10 +1,10 @@
 cheat = false
-skip_intro = true -- false
+skip_intro = false
 
 Config("os",{
 	margin = 50,
 	wait_timer = Time.ms{sec=8}, -- how long a person will wait for an appliance
-	walk_speed = 20, -- generally how fast every walks
+	walk_speed = 2, -- generally how fast every walks
 	appliance_timer_mult = 1.2, -- # times how long appliances stay active
 	search_freq = 250
 })
@@ -61,9 +61,9 @@ Game{
 
 Game.gameOver = function(body)
 	if Game.isOver then return end
-	Game.isOver = true 
+	--Game.isOver = true 
 		
-	-- Email.gameOver(body)
+	--Email.gameOver(body)
 end
 
 Game.getPlayTime = function()

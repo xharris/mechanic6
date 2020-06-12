@@ -56,5 +56,8 @@ HouseMonitor = callable{
 	end,
 	getEntityInfo = function(...)
 		return main_map:getEntityInfo(...)
+	end,
+	getcamera = function()
+		return window.cam
 	end
 }

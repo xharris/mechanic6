@@ -8,16 +8,20 @@
     "window_size": 4,
     "quick_access": [
         [
+            "main.map=map+?",
+            "main.map"
+        ],
+        [
+            "main.lua=script+?",
+            "main.lua"
+        ],
+        [
             "person.lua=script+entity+?",
             "person.lua"
         ],
         [
             "Find in files=?",
             "Find in files"
-        ],
-        [
-            "main.lua=script+?",
-            "main.lua"
         ],
         [
             "appliance.lua=script+entity+?",

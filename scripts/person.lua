@@ -67,9 +67,9 @@ Person = Entity("Person",{
 			spot = table.random(activity_list[self.name])
 			if not Game.isOver and not self:moveTo(spot) then 
 				-- appliance is being used
-				if cheat then print(self.name,"thinking about",spot) end
+				-- if cheat then print(self.name,"thinking about",spot) end
 			else
-				-- end the search
+				-- failed: end the search
 				return true 
 			end
 		end)
@@ -130,7 +130,7 @@ Person = Entity("Person",{
 						z = self.z - 2
 					}
 
-					timer.duration = Math.lerp(1, 0.1, tmr_lose.p)
+					timer.duration = Math.lerp(1000, 100, tmr_lose.p)
 				end)
 				
 				-- wait for activation
@@ -160,6 +160,11 @@ Person = Entity("Person",{
 		else 
 			self:setAnimation("stand")
 		end	
+	end,
+	draw = function(self, d)
+		d()
+		
+		--print('draw',self.name,self.x,self.y)
 	end
 })
 
